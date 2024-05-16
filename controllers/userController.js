@@ -12,7 +12,33 @@ import otpGenerator from "otp-generator";
 }
 */
 export async function verifyUser(req, res, next) {
-  
+  try {
+    const { username, email, otp } = req.body;
+
+    // check the user existance
+    let exist = await UserModel.findOne({ username: username });
+    if (!exist) return res.status(404).send({ error: "Can't find User!" });
+
+    // Retrieve the stored OTP from Redis, using the user's email as the key
+    const storedOTP = await client.get(email);
+
+    if (storedOTP === otp) {
+      // If the OTPs match, delete the stored OTP from Redis
+      client.del(email);
+
+      // Update the user's isVerified property in the database
+      await UserModel.findOneAndUpdate({ username }, { isVerified: true });
+
+      // Send a success response
+      res.status(200).send("OTP verified successfully");
+    } else {
+      // If the OTPs do not match, send an error response
+      res.status(400).send("Invalid OTP");
+    }
+    next();
+  } catch (error) {
+    return res.status(500).send({ error });
+  }
 }
 
 /** POST: http://localhost:{{PORT}}/api/user/register 
@@ -25,7 +51,6 @@ export async function verifyUser(req, res, next) {
 }
 */
 export async function register(req, res) {
-  console.log("🚀 ~ register ~ req:", req.body)
   try {
     const { username, password, email, firstName, lastName } = req.body;
 
