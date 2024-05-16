@@ -12,7 +12,7 @@ const app = express();
 
 /** middlewares */
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
 app.use(morgan('tiny'));
 app.disable('x-powered-by'); // less hackers know about our stack
 

@@ -4,8 +4,6 @@ const userRouter = Router();
 /** import all controllers */
 import * as controller from '../controllers/userController.js';
 
-
-
 /** POST Methods */
 
 userRouter.route('/register').post(controller.register); // register user
